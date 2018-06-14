@@ -6,7 +6,9 @@ pipeline {
     }
   }
   environment {
-    GOPATH = "$HOME/go:$WORKSPACE/go"
+    GOPATH          = "$HOME/go:$WORKSPACE/go"
+    PATH            = "$PATH:$HOME/bin"
+    GIT_SSH_COMMAND = "ssh -i ~/.ssh/jenkins_vault_exporter_rsa"
   }
 
   stages {
@@ -15,24 +17,18 @@ pipeline {
       steps {
         bitbucketStatusNotify ( buildState: 'INPROGRESS' )
         sh 'make clean'
-      }
-    }
 
-    stage('Pre Test') {
-      steps {
-        echo 'Pulling Dependencies'
-
-        sh 'go version'
         sh 'go get -u github.com/golang/dep/cmd/dep'
         sh 'go get -u github.com/golang/lint/golint'
         sh 'go get -u gopkg.in/alecthomas/gometalinter.v2'
         sh 'gometalinter.v2 --install'
+        sh 'make install-goreleaser'
+
       }
     }
 
     stage('Test') {
       steps {
-        sh 'make format'
         sh 'make lint'
       }
     }
@@ -58,9 +54,11 @@ pipeline {
               timeout(time: 15, unit: 'SECONDS') {
                 input(message: 'Would you like to release this code?')
               }
-              withCredentials([usernameColonPassword(credentialsId: "jenkins-docker-hub", variable: 'HUB_CREDENTIALS')]) {
-                sh 'make hub-push'
+              withCredentials([ usernameColonPassword(credentialsId: "jenkins-docker-hub", variable: 'HUB_CREDENTIALS'),
+                                string(credentialsId: "jenkins-github-goreleaser", variable: 'GITHUB_TOKEN')]) {
                 sh 'make release'
+                sh 'make hub-push'
+
               }
             } catch (err) {
               def user = err.getCauses()[0].getUser()

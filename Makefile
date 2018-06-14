@@ -17,6 +17,16 @@ GOFMT             ?= $(GO)fmt
 GOOS              ?= linux
 GOARCH            ?= amd64
 
+GITHUB_TOKEN      ?= nil
+
+# Contributing
+## All tools are installed to ~/bin/ (~/go in the case of go) which may need to be added to your $PATH
+OS                 ?= linux
+ARCH               ?= amd64
+GO_VERSION         := 1.10.3
+GORELEASER_VERSION := 0.77.1
+
+
 build:
 	env GOOS=$(GOOS) GOARCH=$(GOARCH) go build -o _output/bin/vault_exporter-$(VERSION).$(GOOS)-$(GOARCH)
 	ln -s vault_exporter-$(VERSION).$(GOOS)-$(GOARCH) ./_output/bin/vault_exporter
@@ -46,6 +56,13 @@ ecr-release: ecr-login
 	docker push $(ECR)/$(IMAGE_NAME):$(VERSION)
 .PHONY: ecr-release
 
+format:
+	$(GOFMT) -s -w .
+.PHONY: format
+
+github-release:
+	env GITHUB_TOKEN=$(GITHUB_TOKEN) goreleaser --rm-dist
+
 hub-login:
 	docker login --username=$(HUB_USERNAME) --password=$(HUB_PASSWORD)
 .PHONY: hub-login
@@ -59,9 +76,22 @@ hub-release: hub-login
 	docker push $(IMAGE_NAME):$(VERSION)
 .PHONY: hub-release
 
-format:
-	$(GOFMT) -s -w .
-.PHONY: format
+install-tools: install-go install-go-releaser
+.PHONY: install-tools
+
+install-go:
+	wget -nv -P /tmp https://dl.google.com/go/go$(GO_VERSION).$(OS)-$(ARCH).tar.gz
+	tar -C ~/ -xzf /tmp/go$(GO_VERSION).$(OS)-$(ARCH).tar.gz
+	rm -r /tmp/go$(GO_VERSION).$(OS)-$(ARCH).tar.gz
+.PHONY: install-go
+
+install-goreleaser:
+	## Stupid non-standard release format... Linux not linux and x86_64 not amd64.
+	wget -nv -P /tmp/ https://github.com/goreleaser/goreleaser/releases/download/v$(GORELEASER_VERSION)/goreleaser_Linux_x86_64.tar.gz
+	tar -C ~/bin -xzf /tmp/goreleaser_Linux_x86_64.tar.gz goreleaser
+	rm -r /tmp/goreleaser_Linux_x86_64.tar.gz
+.PHONY: install-goreleaser
+
 
 lint:
 	# To install gometalinter
@@ -70,7 +100,11 @@ lint:
 	gometalinter.v2 --vendor --deadline=5m
 .PHONY: lint
 
-release: ecr-release hub-release
+release: tag-release github-release ecr-release hub-release
+
+tag-release:
+	git tag $(VERSION)
+.PHONY: tag-release
 
 update-dependencies:
 	dep ensure
