@@ -26,6 +26,7 @@ ARCH               ?= amd64
 GO_VERSION         := 1.10.3
 GORELEASER_VERSION := 0.77.1
 
+
 build:
 	env GOOS=$(GOOS) GOARCH=$(GOARCH) go build -o _output/bin/vault_exporter-$(VERSION).$(GOOS)-$(GOARCH)
 	ln -s vault_exporter-$(VERSION).$(GOOS)-$(GOARCH) ./_output/bin/vault_exporter
@@ -90,6 +91,7 @@ install-goreleaser:
 	tar -C ~/bin -xzf /tmp/goreleaser_Linux_x86_64.tar.gz goreleaser
 	rm -r /tmp/goreleaser_Linux_x86_64.tar.gz
 .PHONY: install-goreleaser
+
 
 lint:
 	# To install gometalinter

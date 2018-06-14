@@ -23,6 +23,7 @@ pipeline {
         sh 'go get -u gopkg.in/alecthomas/gometalinter.v2'
         sh 'gometalinter.v2 --install'
         sh 'make install-goreleaser'
+
       }
     }
 
@@ -48,7 +49,7 @@ pipeline {
     stage('Release') {
       steps {
         script {
-          if (BRANCH_NAME == 'feature/goreleaser') {
+          if (BRANCH_NAME == 'master') {
             try {
               timeout(time: 15, unit: 'SECONDS') {
                 input(message: 'Would you like to release this code?')
@@ -57,6 +58,7 @@ pipeline {
                                 string(credentialsId: "jenkins-github-goreleaser", variable: 'GITHUB_TOKEN')]) {
                 sh 'make release'
                 sh 'make hub-push'
+
               }
             } catch (err) {
               def user = err.getCauses()[0].getUser()
