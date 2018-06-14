@@ -1,6 +1,6 @@
 builds:
   - main: main.go
-    binary: aws_tags_exporter
+    binary: vault_exporter
     goos:
       - darwin
       - linux
