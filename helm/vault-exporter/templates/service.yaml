@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "vault-exporter.fullname" . }}
+  labels:
+    app: {{ template "vault-exporter.name" . }}
+    chart: {{ template "vault-exporter.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ template "vault-exporter.name" . }}
+    release: {{ .Release.Name }}
