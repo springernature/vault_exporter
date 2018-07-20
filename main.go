@@ -171,7 +171,12 @@ func main() {
 	}
 	prometheus.MustRegister(exporter)
 
-	http.Handle(*metricsPath, promhttp.Handler())
+	http.Handle(*metricsPath, promhttp.HandlerFor(prometheus.DefaultGatherer, promhttp.HandlerOpts{
+		ErrorLog:           log.NewErrorLogger(),
+		ErrorHandling:      promhttp.HTTPErrorOnError,
+		DisableCompression: false,
+	}))
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		_, err := w.Write([]byte(`<html>
              <head><title>Vault Exporter</title></head>
