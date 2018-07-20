@@ -5,26 +5,17 @@
 replicaCount: 1
 
 image:
-  repository: nginx
-  tag: stable
-  pullPolicy: IfNotPresent
+  repository: eu.gcr.io/halfpipe-io/vault-exporter
+  pullPolicy: Always
 
 service:
   type: ClusterIP
-  port: 80
-
-ingress:
-  enabled: false
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  path: /
-  hosts:
-    - chart-example.local
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
+  port: 9410
+  annotations:
+    prometheus.io/probe: "true"
+    prometheus.io/probe_path: "/metrics"
+    prometheus.io/port: "9410"
+    prometheus.io/scrape: "true"
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

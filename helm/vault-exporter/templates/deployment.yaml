@@ -21,20 +21,29 @@ spec:
     spec:
       containers:
         - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          image: "{{ .Values.image.repository }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: VAULT_ADDR
+              value: "https://vault-release-vault"
+            - name: VAULT_TLS_SERVER_NAME
+              value: "vault.halfpipe-test.io"
+            - name: VAULT_TOKEN
+              value: "57be2567-310a-5497-b668-e893fe1f1b4a"
+            - name: VAULT_SKIP_VERIFY
+              value: "true"
           ports:
-            - name: http
-              containerPort: 80
+            - name: prometheus
+              containerPort: 9410
               protocol: TCP
           livenessProbe:
             httpGet:
               path: /
-              port: http
+              port: prometheus
           readinessProbe:
             httpGet:
               path: /
-              port: http
+              port: prometheus
           resources:
 {{ toYaml .Values.resources | indent 12 }}
     {{- with .Values.nodeSelector }}

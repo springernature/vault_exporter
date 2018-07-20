@@ -7,13 +7,15 @@ metadata:
     chart: {{ template "vault-exporter.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
+  annotations:
+{{ toYaml .Values.service.annotations | indent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
-      targetPort: http
+      targetPort: prometheus
       protocol: TCP
-      name: http
+      name: prometheus
   selector:
     app: {{ template "vault-exporter.name" . }}
     release: {{ .Release.Name }}
