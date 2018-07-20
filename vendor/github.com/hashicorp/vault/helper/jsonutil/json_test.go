@@ -40,7 +40,7 @@ func TestJSONUtil_CompressDecompressJSON(t *testing.T) {
 	if !reflect.DeepEqual(expected, actual) {
 		t.Fatalf("bad: expected: %#v\nactual: %#v", expected, actual)
 	}
-	for key := range actual {
+	for key, _ := range actual {
 		delete(actual, key)
 	}
 

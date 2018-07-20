@@ -380,7 +380,7 @@ func TestMap_NestedMapWithSliceIntValues(t *testing.T) {
 
 	b := &B{
 		Foo: map[string][]int{
-			"example_key": {80},
+			"example_key": []int{80},
 		},
 	}
 
@@ -418,7 +418,7 @@ func TestMap_NestedMapWithSliceStructValues(t *testing.T) {
 
 	b := &B{
 		Foo: map[string][]address{
-			"example_key": {
+			"example_key": []address{
 				{Country: "Turkey"},
 			},
 		},
@@ -463,8 +463,8 @@ func TestMap_NestedSliceWithStructValues(t *testing.T) {
 	p := person{
 		Name: "test",
 		Addresses: []address{
-			{Country: "England"},
-			{Country: "Italy"},
+			address{Country: "England"},
+			address{Country: "Italy"},
 		},
 	}
 	mp := Map(p)
@@ -492,8 +492,8 @@ func TestMap_NestedSliceWithPointerOfStructValues(t *testing.T) {
 	p := person{
 		Name: "test",
 		Addresses: []*address{
-			{Country: "England"},
-			{Country: "Italy"},
+			&address{Country: "England"},
+			&address{Country: "Italy"},
 		},
 	}
 	mp := Map(p)
